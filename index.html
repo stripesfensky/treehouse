@@ -3,8 +3,49 @@
     <head>
         <title>Animal Crossing Passcode Generator</title>
         <script>
-            jsonPath = 'https://docs.google.com/spreadsheets/d/13sRAcj9YbP9_i-u0Kg6S7ycHbaOQx1jFG4lYLm2DJ4c/gviz/tq?tqx=out:json&tq&gid=1800098991'
-            fetch(jsonPath)
+            async function fetchAnimalCrossingData() {
+                response = await fetch('https://docs.google.com/spreadsheets/d/13sRAcj9YbP9_i-u0Kg6S7ycHbaOQx1jFG4lYLm2DJ4c/gviz/tq?tqx=out:json&gid=1800098991&tq=SELECT A,B,E,J,CQ,HG');
+                jsonData = await response.text()
+                jsonData = jsonData.substring(47).slice(0, -2)
+            }
+            
+            fetchAnimalCrossingData()
+                .then((response) => {
+                    parsedJSON = JSON.parse(jsonData)
+                    colArray = parsedJSON.table.cols
+                    rowArray = parsedJSON.table.rows
+                    itemData = []               
+                    for (let r = 0; r < rowArray.length; r++){
+                        rowItemData = []
+                        for (let c = 0; c < colArray.length; c++) {
+                            cA = colArray[c].label
+                            rA = rowArray[r].c[c]
+                            if (rA == null) {
+                                rA = "-"
+                            }
+                            else {
+                                rA = rA.v
+                            }
+                            rowItemKeyValPair = '"' + cA + '": ' + '' + '"' + rA + '"'
+                            rowItemData.push(rowItemKeyValPair)
+                        }
+                        rowItemJSON = "{\n"
+                        for (let rID = 0; rID < rowItemData.length; rID++) {
+                            if (rID < rowItemData.length - 1) {
+                                rowItemJSON += ("\t" + rowItemData[rID] + ",\n")
+                            }
+                            else {
+                                rowItemJSON += ("\t" + rowItemData[rID] + "\n")
+                            }
+                        }
+                        rowItemJSON += "}"
+                        itemData.push(JSON.parse(rowItemJSON))
+                    }
+                    console.log(itemData)
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
         </script>
     </head>
     <body>
